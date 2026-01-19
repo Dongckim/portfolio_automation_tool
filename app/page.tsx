@@ -17,8 +17,9 @@ export default function Home() {
 
     // API 로드 후 플레이어 초기화
     const loadPlayer = () => {
-      if (window.YT && window.YT.Player && playerRef.current) {
-        new window.YT.Player(playerRef.current, {
+      const YT = (window as any).YT;
+      if (YT && YT.Player && playerRef.current) {
+        new YT.Player(playerRef.current, {
           videoId: 'g81AkDZfJF4',
           playerVars: {
             autoplay: 1,
@@ -37,7 +38,8 @@ export default function Home() {
             },
             onStateChange: (event: any) => {
               // 동영상이 끝나면 다시 시작
-              if (event.data === window.YT.PlayerState.ENDED) {
+              const YT = (window as any).YT;
+              if (event.data === YT?.PlayerState?.ENDED) {
                 event.target.seekTo(87); // 1분 27초로 이동
                 event.target.playVideo();
               }
@@ -48,7 +50,8 @@ export default function Home() {
     };
 
     // API가 이미 로드되어 있는지 확인
-    if (window.YT && window.YT.Player) {
+    const YT = (window as any).YT;
+    if (YT && YT.Player) {
       loadPlayer();
     } else {
       (window as any).onYouTubeIframeAPIReady = loadPlayer;

@@ -12,7 +12,7 @@ export interface Project {
 export const projects: Project[] = [
   {
     id: "content-monitor",
-    title: "End-to-End Content Monitor",
+    title: "Web Content Integrity Monitor",
     description: "Architected an automated pipeline to track historical changes in external documentation, simulating release validation workflows.",
     tags: ["Python", "Cron", "Diff Algorithm", "BeautifulSoup"],
     icon: Activity,

@@ -17,7 +17,7 @@ export default function Home() {
 
     // API 로드 후 플레이어 초기화
     const loadPlayer = () => {
-      const YT = (window as any).YT;
+      const YT = (window as any).YT as any;
       if (YT && YT.Player && playerRef.current) {
         new YT.Player(playerRef.current, {
           videoId: 'g81AkDZfJF4',
@@ -38,8 +38,7 @@ export default function Home() {
             },
             onStateChange: (event: any) => {
               // 동영상이 끝나면 다시 시작
-              const YT = (window as any).YT;
-              if (event.data === YT?.PlayerState?.ENDED) {
+              if (event.data === YT.PlayerState.ENDED) {
                 event.target.seekTo(87); // 1분 27초로 이동
                 event.target.playVideo();
               }
@@ -50,8 +49,7 @@ export default function Home() {
     };
 
     // API가 이미 로드되어 있는지 확인
-    const YT = (window as any).YT;
-    if (YT && YT.Player) {
+    if ((window as any).YT && (window as any).YT.Player) {
       loadPlayer();
     } else {
       (window as any).onYouTubeIframeAPIReady = loadPlayer;
@@ -71,8 +69,8 @@ export default function Home() {
         {/* Hero Section */}
         <section id="about" className="pt-20">
           <div className="mb-8 md:mb-12 relative">
-            <div className="relative flex items-start justify-between gap-8 mb-10">
-              <div className="flex-1 min-w-0 max-w-[calc(100%-12rem)] md:max-w-[calc(100%-20rem)]">
+            <div className="relative flex flex-col md:flex-row items-start justify-between gap-8 mb-10">
+              <div className="flex-1 min-w-0 max-w-full md:max-w-[calc(100%-20rem)]">
                 {/* Main Title - 첫 번째로 나타남 */}
                 <motion.h1
                   initial={{ opacity: 0, y: 30 }}
@@ -86,6 +84,28 @@ export default function Home() {
                 >
                   Engineering Stability.
                 </motion.h1>
+
+                {/* Profile Image (Mobile) - 모바일에서는 소개 텍스트 위에 표시 */}
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.8 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{
+                    duration: 0.7,
+                    delay: 0.6,
+                    ease: [0.22, 1, 0.36, 1]
+                  }}
+                  className="md:hidden mb-8 flex justify-center"
+                >
+                  <div className="relative w-32 h-32 rounded-full border-2 border-border overflow-hidden bg-surface">
+                    <Image
+                      src="/profile.jpg"
+                      alt="Dongchan Kim"
+                      fill
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
+                </motion.div>
                 
                 {/* Subtitle and Description - 두 번째로 나타남 */}
                 <motion.div
@@ -167,7 +187,7 @@ export default function Home() {
                   delay: 0.6,
                   ease: [0.22, 1, 0.36, 1]
                 }}
-                className="flex-shrink-0 w-40 h-40 md:w-72 md:h-72 hidden md:block"
+                className="hidden md:block flex-shrink-0 w-72 h-72"
               >
                 <div className="relative w-full h-full rounded-full border-2 border-border overflow-hidden bg-surface">
                   <Image

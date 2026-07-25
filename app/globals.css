@@ -18,6 +18,10 @@
   --gradient-to: #E5E5EA;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 [data-theme="dark"] {
   --background: #000000;
   --surface: #1C1C1E;
@@ -40,6 +44,13 @@ body {
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
   transition: background 0.35s ease, color 0.25s ease;
+}
+
+@media (max-width: 639px) {
+  #experience article.grid {
+    grid-template-columns: minmax(0, 1fr) !important;
+    row-gap: 0.5rem;
+  }
 }
 
 @layer base {
@@ -80,4 +91,3 @@ body {
     border: 1px solid var(--glass-border);
   }
 }
-

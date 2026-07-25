@@ -36,34 +36,29 @@ export default function Navbar() {
 
   const menuItems = [
     {
-      label: "About",
-      href: "#about",
+      label: "About Me",
+      href: "/#about",
       submenu: [
         {
           title: "Explore",
           items: [
-            { label: "Overview", href: "https://drive.google.com/file/d/1A_Axi5jiqOgkQX29WL8iK33kjys2O1V7/view?usp=sharing" },
-            { label: "Skills", href: "https://drive.google.com/file/d/1A_Axi5jiqOgkQX29WL8iK33kjys2O1V7/view?usp=sharing" },
-            { label: "Education", href: "https://drive.google.com/file/d/1A_Axi5jiqOgkQX29WL8iK33kjys2O1V7/view?usp=sharing" },
-          ],
-        },
-        {
-          title: "Background",
-          items: [
-            { label: "Experience", href: "https://drive.google.com/file/d/1A_Axi5jiqOgkQX29WL8iK33kjys2O1V7/view?usp=sharing" },
-            { label: "Achievements", href: "https://drive.google.com/file/d/1A_Axi5jiqOgkQX29WL8iK33kjys2O1V7/view?usp=sharing" },
+            { label: "Recent News", href: "/#recent-news" },
+            { label: "Education", href: "/#education" },
+            { label: "Leadership & Experience", href: "/#leadership" },
+            { label: "Awards & Honors", href: "/#awards" },
+            { label: "Photo Dumps.", href: "/#photo-dumps" },
           ],
         },
       ],
     },
     {
       label: "Projects",
-      href: "#projects",
+      href: "/projects",
       submenu: [
         {
           title: "All Projects",
           items: [
-            { label: "View All", href: "#projects" },
+            { label: "View All", href: "/projects" },
           ],
         },
         {
@@ -97,24 +92,7 @@ export default function Navbar() {
     },
     {
       label: "Contact",
-      href: "#contact",
-      submenu: [
-        {
-          title: "Connect",
-          items: [
-            { label: "Email", href: "mailto:dck.alx@gmail.com" },
-            { label: "LinkedIn", href: "https://www.linkedin.com/in/dongckim99/" },
-            { label: "GitHub", href: "https://github.com/Dongckim" },
-          ],
-        },
-        {
-          title: "Resources",
-          items: [
-            { label: "Resume", href: "https://drive.google.com/file/d/1IzFm3snCqi1K-97DKgGH4yxp6PeIfL73/view?usp=sharing" },
-            { label: "XR Portfolio", href: "https://dongchan.xyz" },
-          ],
-        },
-      ],
+      href: "/contact",
     },
   ];
 
@@ -160,7 +138,7 @@ export default function Navbar() {
           }
         }}
       >
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-12 md:h-14">
             {/* Logo (favicon) */}
             <Link
@@ -185,6 +163,10 @@ export default function Navbar() {
                   key={item.label}
                   className="relative"
                   onMouseEnter={() => {
+                    if (!item.submenu) {
+                      setHoveredItem(null);
+                      return;
+                    }
                     const previousItem = hoveredItem;
                     setHoveredItem(item.label);
                     setPrevHoveredItem(previousItem);
@@ -292,7 +274,7 @@ export default function Navbar() {
             }}
             style={{ pointerEvents: "auto" }}
           >
-            <div className={`max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-16 min-h-[400px] flex items-start ${hoveredItem === "Theme" ? "justify-end" : ""}`}>
+            <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 min-h-[400px] flex items-start ${hoveredItem === "Theme" ? "justify-end" : ""}`}>
               {currentSubmenu && hoveredItem && (
                 <div
                   key={hoveredItem}
@@ -390,4 +372,3 @@ export default function Navbar() {
     </div>
   );
 }
-

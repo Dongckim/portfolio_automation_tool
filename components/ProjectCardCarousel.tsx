@@ -91,7 +91,7 @@ export default function ProjectCardCarousel() {
       </div>
       {/* Arrow navigation - bottom right, hero-aligned */}
       {projects.length > 1 && (
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end pb-6">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-end pb-6">
           <div className="flex items-center gap-2">
             <button
               type="button"

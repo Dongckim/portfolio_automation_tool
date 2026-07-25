@@ -2,86 +2,56 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import BentoGrid from "@/components/BentoGrid";
-import { highlights, highlightImages } from "@/constants/data";
-import { useCallback, useEffect, useRef } from "react";
+import PhotoCylinder from "@/components/PhotoCylinder";
+import ScrollExpansionHero from "@/components/ui/scroll-expansion-hero";
+import { highlightImages } from "@/constants/data";
+import { useEffect, useState } from "react";
+
+const heroPhrases = ["the next interface.", "human moments.", "the reality.", "what matters."];
 
 export default function Home() {
-  const playerRef = useRef<HTMLDivElement>(null);
-  const highlightsScrollRef = useRef<HTMLDivElement>(null);
-
-  const scrollHighlights = useCallback((direction: "left" | "right") => {
-    const el = highlightsScrollRef.current;
-    if (!el) return;
-    const firstCard = el.querySelector("[data-carousel-card]") as HTMLElement | null;
-    const gap = 24;
-    const step = firstCard ? firstCard.offsetWidth + gap : el.clientWidth;
-    el.scrollBy({ left: direction === "left" ? -step : step, behavior: "smooth" });
-  }, []);
+  const [showAllNews, setShowAllNews] = useState(false);
+  const [showAllLeadership, setShowAllLeadership] = useState(false);
+  const [showAllAwards, setShowAllAwards] = useState(false);
+  const [heroPhraseIndex, setHeroPhraseIndex] = useState(0);
+  const [typedHeroPhrase, setTypedHeroPhrase] = useState("");
+  const [isDeletingHeroPhrase, setIsDeletingHeroPhrase] = useState(false);
 
   useEffect(() => {
-    // YouTube IFrame Player API 로드
-    const tag = document.createElement('script');
-    tag.src = 'https://www.youtube.com/iframe_api';
-    const firstScriptTag = document.getElementsByTagName('script')[0];
-    firstScriptTag.parentNode?.insertBefore(tag, firstScriptTag);
+    const phrase = heroPhrases[heroPhraseIndex];
+    const isComplete = typedHeroPhrase === phrase;
+    const delay = isComplete && !isDeletingHeroPhrase ? 1500 : isDeletingHeroPhrase ? 32 : 55;
 
-    // API 로드 후 플레이어 초기화
-    const loadPlayer = () => {
-      const YT = (window as any).YT as any;
-      if (YT && YT.Player && playerRef.current) {
-        new YT.Player(playerRef.current, {
-          videoId: 'PbS7iEWzLyw',
-          playerVars: {
-            autoplay: 1,
-            mute: 1,
-            controls: 0,
-            modestbranding: 1,
-            rel: 0,
-            start: 0, // 1분 27초
-            end: 99, // 3분 42초
-            loop: 5,
-            playlist: 'PbS7iEWzLyw',
-          },
-          events: {
-            onReady: (event: any) => {
-              event.target.playVideo();
-            },
-            onStateChange: (event: any) => {
-              // 동영상이 끝나면 다시 시작
-              if (event.data === YT.PlayerState.ENDED) {
-                event.target.seekTo(87); // 1분 27초로 이동
-                event.target.playVideo();
-              }
-            },
-          },
-        });
+    const timer = window.setTimeout(() => {
+      if (!isDeletingHeroPhrase && typedHeroPhrase.length < phrase.length) {
+        setTypedHeroPhrase(phrase.slice(0, typedHeroPhrase.length + 1));
+      } else if (!isDeletingHeroPhrase) {
+        setIsDeletingHeroPhrase(true);
+      } else if (typedHeroPhrase.length > 0) {
+        setTypedHeroPhrase((current) => current.slice(0, -1));
+      } else {
+        setHeroPhraseIndex((current) => (current + 1) % heroPhrases.length);
+        setIsDeletingHeroPhrase(false);
       }
-    };
+    }, delay);
 
-    // API가 이미 로드되어 있는지 확인
-    if ((window as any).YT && (window as any).YT.Player) {
-      loadPlayer();
-    } else {
-      (window as any).onYouTubeIframeAPIReady = loadPlayer;
-    }
-
-    return () => {
-      // Cleanup
-      if ((window as any).onYouTubeIframeAPIReady) {
-        delete (window as any).onYouTubeIframeAPIReady;
-      }
-    };
-  }, []);
+    return () => window.clearTimeout(timer);
+  }, [heroPhraseIndex, typedHeroPhrase, isDeletingHeroPhrase]);
 
   return (
-    <main className="min-h-screen bg-background relative overflow-hidden">
+    <main className="relative min-h-screen overflow-x-hidden bg-background">
+      <ScrollExpansionHero
+        mediaType="image"
+        mediaSrc="/smartsight-intro.gif"
+        bgImageSrc="/smartsight-lineup.webp"
+      />
+
       {/* Hero Section (includes Highlights + links) */}
-      <section id="about" className="pt-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-20 pb-2 md:pb-4">
+      <section id="about" className="scroll-mt-20 pt-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-20 pb-2 md:pb-4">
           <div className="mb-8 md:mb-12 relative">
             <div className="relative flex flex-col md:flex-row items-start justify-between gap-8 mb-10">
-              <div className="flex-1 min-w-0 max-w-full md:max-w-[calc(100%-20rem)]">
+              <div className="flex-1 min-w-0 max-w-full md:max-w-[calc(100%-28rem)]">
                 {/* Main Title - 첫 번째로 나타남 */}
                 <motion.h1
                   initial={{ opacity: 0, y: 30 }}
@@ -93,7 +63,7 @@ export default function Home() {
                   }}
                   className="text-4xl md:text-6xl font-bold text-textPrimary tracking-tight mb-10"
                 >
-                  Engineering Stability.
+                  Hi, I&apos;m Dongchan.
                 </motion.h1>
 
                 {/* Profile Image (Mobile) - 모바일에서는 소개 텍스트 위에 표시 */}
@@ -107,12 +77,13 @@ export default function Home() {
                   }}
                   className="md:hidden mb-8 flex justify-center"
                 >
-                  <div className="relative w-32 h-32 rounded-full border-2 border-border overflow-hidden bg-surface">
+                  <div className="w-64 overflow-hidden rounded-2xl border border-border bg-surface p-1.5 shadow-[0_18px_45px_rgba(0,0,0,0.14)]">
                     <Image
-                      src="/profile.jpg"
-                      alt="Dongchan Kim"
-                      fill
-                      className="object-cover"
+                      src="/hero-nyc.jpg"
+                      alt="Dongchan Kim in New York City"
+                      width={2999}
+                      height={3596}
+                      className="h-auto w-full rounded-xl"
                       priority
                     />
                   </div>
@@ -129,57 +100,22 @@ export default function Home() {
                   }}
                   className="mb-6"
                 >
-                  <h2 className="text-xl md:text-2xl font-medium text-textPrimary mb-4 tracking-tight">
-                    Dongchan Kim | System Design & Architecture
+                  <h2 className="text-2xl md:text-3xl font-semibold text-textPrimary mb-5 tracking-[-0.04em]">
+                    I build for <span className="text-accent">{typedHeroPhrase}</span><span className="ml-0.5 inline-block h-[0.85em] w-[2px] animate-pulse bg-accent align-[-0.08em]" />
                   </h2>
                   <p className="text-base md:text-lg text-textSecondary leading-relaxed">
-                    System Design & Architecture-focused Fullstack Engineer with extensive experience in scripting (Js/Python/Bash) and core Computer Science algorithms. Skilled in diagnosing critical performance bottlenecks, evidenced by achieving less than 50ms frame variance in multi-device XR environments through custom drift-correction algorithms. Dedicated to enhancing software quality via automated testing frameworks and rigorous debugging methodologies.
+                    I&apos;m Dongchan Kim, an M.S. student at UIUC and a software engineer interested in making emerging interfaces feel reliable, useful, and human.
                   </p>
-                  <ul className="mt-5 space-y-2 text-textPrimary font-medium tracking-tight">
-                    {highlights.map((item) => (
-                      <li key={item.title} className="text-base md:text-lg leading-snug flex items-center gap-2">
-                        <span className="flex-shrink-0 w-1.5 h-1.5 rounded-full bg-accent" aria-hidden />
-                        <span className="flex flex-wrap items-center gap-x-2 gap-y-1">
-                          {item.href && item.linkText ? (
-                            <span>
-                              {item.title.split(item.linkText).map((part, i, arr) => (
-                                i < arr.length - 1 ? (
-                                  <span key={i}>
-                                    {part}
-                                    <a
-                                      href={item.href}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="underline decoration-accent/40 underline-offset-2 hover:decoration-accent transition-colors"
-                                    >
-                                      {item.linkText}
-                                    </a>
-                                  </span>
-                                ) : (
-                                  <span key={i}>{part}</span>
-                                )
-                              ))}
-                            </span>
-                          ) : (
-                            <span>{item.title}</span>
-                          )}
-                          {item.badge && (
-                            <a
-                              href={item.badge.href}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-[#0A84FF]/10 text-[#4A9EFF] border border-[#0A84FF]/20 hover:bg-[#0A84FF]/20 transition-colors whitespace-nowrap"
-                            >
-                              <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
-                              </svg>
-                              {item.badge.text}
-                            </a>
-                          )}
-                        </span>
-                      </li>
-                    ))}
-                  </ul>
+                  <p className="mt-4 text-base md:text-lg text-textSecondary leading-relaxed">
+                    I&apos;ve built real-time XR systems, wearable AI prototypes, and full-stack products. I care about the engineering underneath an experience: latency, reliability, and the details that make interaction feel effortless.
+                  </p>
+                  <p className="mt-4 text-base md:text-lg text-textSecondary leading-relaxed">
+                    Outside of work, I&apos;ve supported <strong className="font-semibold text-textPrimary">Manchester United</strong> for over a decade and rarely miss a Grand Prix weekend cheering for <strong className="font-semibold text-textPrimary">Max Verstappen</strong>.
+                  </p>
+                  <div className="mt-6 space-y-1 text-sm md:text-base leading-relaxed text-textSecondary">
+                    <p>Contact (Affiliation): <a className="transition-colors hover:text-accent" href="mailto:dk76@illinois.edu">dk76 [at] illinois [dot] edu</a></p>
+                    <p>Contact (Personal): <a className="transition-colors hover:text-accent" href="mailto:dck.alx@gmail.com">dck.alx [at] gmail [dot] com</a></p>
+                  </div>
                   {/* Social Links */}
                   <motion.div
                     initial={{ opacity: 0, y: 20 }}
@@ -242,14 +178,15 @@ export default function Home() {
                   delay: 0.6,
                   ease: [0.22, 1, 0.36, 1]
                 }}
-                className="hidden md:block flex-shrink-0 w-72 h-72"
+                className="hidden md:block flex-shrink-0 w-[25rem]"
               >
-                <div className="relative w-full h-full rounded-full border-2 border-border overflow-hidden bg-surface">
+                <div className="w-full overflow-hidden rounded-2xl border border-border bg-surface p-2 shadow-[0_26px_60px_rgba(0,0,0,0.15)]">
                   <Image
-                    src="/profile.jpg"
-                    alt="Dongchan Kim"
-                    fill
-                    className="object-cover"
+                    src="/hero-nyc.jpg"
+                    alt="Dongchan Kim in New York City"
+                    width={2999}
+                    height={3596}
+                    className="h-auto w-full rounded-xl"
                     priority
                   />
                 </div>
@@ -258,201 +195,136 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Photo section - card row with arrows outside */}
-        <motion.div
-          id="highlights"
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{
-            duration: 0.8,
-            delay: 0.7,
-            ease: [0.22, 1, 0.36, 1],
-          }}
-          className="mt-1 w-full"
-        >
-          <div
-            ref={highlightsScrollRef}
-            className="w-full flex overflow-x-auto gap-4 md:gap-6 px-4 sm:px-6 lg:px-8 pb-4 snap-x snap-mandatory scroll-smooth [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-          >
-            {/* Spacer so first card starts centered */}
-            <div
-              aria-hidden
-              className="flex-shrink-0 w-[calc(5vw-1rem)] sm:w-[calc(7.5vw-1.5rem)] md:w-[max(0px,calc(50vw-min(550px,42.5vw)-1.5rem))]"
-            />
-            {highlightImages.map((src, i) => (
-              <div
-                key={src}
-                data-carousel-card
-                className="relative flex-shrink-0 w-[90vw] sm:w-[85vw] md:w-[min(1100px,85vw)] aspect-[16/10] rounded-2xl overflow-hidden snap-center bg-surface border border-border shadow-sm"
-              >
-                <Image
-                  src={src}
-                  alt={`MIT Reality Hack 2026 — ${i + 1}`}
-                  fill
-                  className="object-cover object-center"
-                  sizes="(max-width: 768px) 90vw, 1100px"
-                  priority={i === 0}
-                />
-              </div>
-            ))}
-          </div>
-          {highlightImages.length > 1 && (
-            <div className="flex w-full mt-4 mb-8 md:mb-10 px-4 sm:px-6 lg:px-8 justify-end">
-              {/* Right edge of arrow group aligns with center photo right edge (margin from viewport right) */}
-              <div
-                className="flex items-center gap-2 flex-shrink-0 mr-[5vw] sm:mr-[7.5vw] md:mr-[calc(50vw-min(550px,42.5vw)-0.5rem)]"
-              >
-                <button
-                  type="button"
-                  onClick={() => scrollHighlights("left")}
-                  aria-label="Previous photo"
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-border bg-surface text-textPrimary shadow-sm transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background"
-                >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => scrollHighlights("right")}
-                  aria-label="Next photo"
-                  className="flex h-10 w-10 items-center justify-center rounded-full border-2 border-border bg-surface text-textPrimary shadow-sm transition hover:opacity-90 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2 focus:ring-offset-background"
-                >
-                  <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
-            </div>
-          )}
-        </motion.div>
       </section>
 
-      {/* Projects Section - Apple-style: light gray header + white card strip */}
-      <section id="projects" className="bg-background">
-        {/* Header area: light gray background */}
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 md:pt-16 pb-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: 0.7,
-              delay: 1.2,
-              ease: [0.22, 1, 0.36, 1]
-            }}
-          >
-            <motion.h2
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{
-                duration: 0.6,
-                delay: 1.2,
-                ease: [0.22, 1, 0.36, 1]
-              }}
-              className="text-4xl md:text-6xl font-bold text-textPrimary tracking-tight"
-            >
-              Projects.
-            </motion.h2>
-          </motion.div>
-        </div>
-
-        {/* YouTube Section - 모바일: 제목·설명 비디오 위 / PC: 비디오 안 하단 오버레이 */}
-        <div className="w-full mt-8 sm:mt-10 md:mt-8">
-          <motion.div
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{
-              duration: 0.8,
-              delay: 1.0,
-              ease: [0.22, 1, 0.36, 1]
-            }}
-            className="relative w-full"
-          >
-            {/* 모바일 전용: 대제목 + 섹션 설명 (비디오 위) */}
-            <div className="md:hidden max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 pb-6 sm:pb-8">
-              <motion.div
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{
-                  duration: 0.8,
-                  delay: 1.1,
-                  ease: [0.22, 1, 0.36, 1]
-                }}
-                className="flex flex-col gap-4"
-              >
-                <div className="flex-1 min-w-0">
-                  <h3 className="text-xl sm:text-2xl font-bold text-textPrimary tracking-tight leading-tight mb-2">
-                    MIT Reality Hack 2026 — Grand Gold Award & Meta Track Winner
-                  </h3>
-                  <p className="text-sm sm:text-base text-textSecondary leading-relaxed">
-                    World&apos;s premier XR + AI hackathon. Building immersive experiences that push the boundaries of spatial computing and real-time multi-device synchronization.
-                  </p>
-                </div>
-                <motion.a
-                  href="/projects/reality-hack"
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="inline-flex items-center justify-center self-start px-4 sm:px-6 py-2.5 sm:py-3 bg-surface text-textPrimary rounded-full text-sm font-medium transition-all duration-200 hover:opacity-90 shadow-sm border border-border"
-                >
-                  Learn more
-                  <svg className="w-4 h-4 ml-1.5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </motion.a>
-              </motion.div>
+      <section id="experience" className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 md:py-24">
+        <div className="space-y-20 md:space-y-28">
+          <div id="recent-news" className="scroll-mt-24">
+            <h2 className="text-2xl font-semibold tracking-[-0.04em] text-textPrimary">Recent News</h2>
+            <div className="mt-8 space-y-6 md:space-y-7">
+              <article className="grid grid-cols-[6.5rem_1fr] md:grid-cols-[11.5rem_1fr]">
+                <p className="pt-0.5 text-sm font-semibold text-textSecondary">2026.08</p>
+                <p className="border-l border-border pl-6 text-base md:text-lg leading-relaxed text-textPrimary">Starting my M.S. in Systems &amp; Entrepreneurial Engineering at UIUC.</p>
+              </article>
+              <article className="grid grid-cols-[6.5rem_1fr] md:grid-cols-[11.5rem_1fr]">
+                <p className="pt-0.5 text-sm font-semibold text-textSecondary">2026.06</p>
+                <p className="border-l border-border pl-6 text-base md:text-lg leading-relaxed text-textPrimary">Joined HXRI Labs as a Research Assistant under the guidance of Avinash Gupta.</p>
+              </article>
+              <article className="grid grid-cols-[6.5rem_1fr] md:grid-cols-[11.5rem_1fr]">
+                <p className="pt-0.5 text-sm font-semibold text-textSecondary">2026.06</p>
+                <p className="border-l border-border pl-6 text-base md:text-lg leading-relaxed text-textPrimary">Exhibited SmartSight at the Builder&apos;s Nexus during AWE USA 2026 in Long Beach, California.</p>
+              </article>
+              {showAllNews && (
+                <>
+                  <article className="grid grid-cols-[6.5rem_1fr] md:grid-cols-[11.5rem_1fr]">
+                    <p className="pt-0.5 text-sm font-semibold text-textSecondary">2026.05</p>
+                    <p className="border-l border-border pl-6 text-base md:text-lg leading-relaxed text-textPrimary">Graduated from Stony Brook University Magna Cum Laude.</p>
+                  </article>
+                  <article className="grid grid-cols-[6.5rem_1fr] md:grid-cols-[11.5rem_1fr]">
+                    <p className="pt-0.5 text-sm font-semibold text-textSecondary">2026.04</p>
+                    <p className="border-l border-border pl-6 text-base md:text-lg leading-relaxed text-textPrimary">Launched Tryl, an AI-powered fashion try-on experience.</p>
+                  </article>
+                  <article className="grid grid-cols-[6.5rem_1fr] md:grid-cols-[11.5rem_1fr]">
+                    <p className="pt-0.5 text-sm font-semibold text-textSecondary">2026.04</p>
+                    <p className="border-l border-border pl-6 text-base md:text-lg leading-relaxed text-textPrimary">
+                      SmartSight was featured in Meta&apos;s <a className="underline decoration-border underline-offset-4 transition-colors hover:text-accent" href="https://developers.meta.com/blog/explore-whats-possible-with-wearables-device-access-toolkit/" target="_blank" rel="noopener noreferrer">Wearables Device Access Toolkit</a> developer story.
+                    </p>
+                  </article>
+                  <article className="grid grid-cols-[6.5rem_1fr] md:grid-cols-[11.5rem_1fr]">
+                    <p className="pt-0.5 text-sm font-semibold text-textSecondary">2026.01</p>
+                    <p className="border-l border-border pl-6 text-base md:text-lg leading-relaxed text-textPrimary">SmartSight won Gold and Meta Track at MIT Reality Hack.</p>
+                  </article>
+                </>
+              )}
             </div>
-
-            {/* YouTube 비디오: PC에서는 하단에 오버레이(대제목+설명+Learn more) */}
-            <div className="relative w-full aspect-video overflow-hidden">
-              <div ref={playerRef} className="absolute inset-0 w-full h-full z-0" />
-
-              {/* PC 전용: 비디오 하단 그라데이션 + 텍스트 오버레이 */}
-              <div className="hidden md:block absolute inset-0 pointer-events-none z-5">
-                <div className="absolute bottom-0 left-0 right-0 h-1/2 bg-gradient-to-t from-black/80 via-black/50 to-transparent" />
-              </div>
-              <div className="hidden md:flex absolute bottom-0 left-0 right-0 z-10 pointer-events-none pb-8 md:pb-10 lg:pb-12">
-                <div className="max-w-5xl mx-auto w-full px-4 sm:px-6 lg:px-8">
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.8, delay: 1.1, ease: [0.22, 1, 0.36, 1] }}
-                    className="flex flex-row items-end justify-between gap-8"
-                  >
-                    <div className="flex-1 min-w-0">
-                      <p className="text-2xl md:text-3xl lg:text-4xl text-white font-bold leading-tight mb-2 md:mb-3 tracking-tight">
-                        MIT Reality Hack 2026 — Grand Gold Award & Meta Track Winner
-                      </p>
-                      <p className="text-base md:text-lg text-white/80 leading-relaxed">
-                        World&apos;s premier XR + AI hackathon. Building immersive experiences that push the boundaries of spatial computing and real-time multi-device synchronization.
-                      </p>
-                    </div>
-                    <motion.a
-                      href="/projects/reality-hack"
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="flex-shrink-0 pointer-events-auto inline-flex items-center justify-center px-6 md:px-8 py-3 md:py-4 bg-white text-textPrimary rounded-full text-base font-medium transition-all duration-200 hover:bg-white/90 shadow-lg"
-                    >
-                      Learn more
-                      <svg className="w-5 h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                      </svg>
-                    </motion.a>
-                  </motion.div>
-                </div>
-              </div>
+            <div className="mt-8 flex justify-center md:ml-[11.5rem]">
+              <button onClick={() => setShowAllNews((value) => !value)} className="rounded-full border border-border px-6 py-2.5 text-sm font-medium text-textSecondary transition-colors hover:border-textSecondary hover:text-textPrimary">{showAllNews ? "Show less" : "Show more"}</button>
             </div>
-          </motion.div>
-        </div>
+          </div>
 
-        {/* Project grid */}
-        <div className="bg-surface rounded-t-3xl">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-10 md:py-14">
-            <BentoGrid />
+          <div id="education" className="scroll-mt-24">
+            <h2 className="text-2xl font-semibold tracking-[-0.04em] text-textPrimary">Education</h2>
+            <div className="mt-8 space-y-8 md:space-y-10">
+              <article className="grid grid-cols-[6.5rem_1fr] md:grid-cols-[11.5rem_1fr]">
+                <p className="pt-0.5 whitespace-nowrap text-sm font-semibold text-textSecondary">2026.08 — 2028.05</p>
+                <div className="border-l border-border pl-6">
+                  <h3 className="text-lg font-medium text-textSecondary">M.S. in Systems &amp; Entrepreneurial Engineering</h3>
+                  <p className="mt-1 text-base md:text-lg leading-relaxed text-textPrimary">University of Illinois Urbana-Champaign</p>
+                  <p className="mt-2 text-base leading-relaxed text-textSecondary">Research Assistant, HXRI Labs · Advisor: Avinash Gupta</p>
+                </div>
+              </article>
+              <article className="grid grid-cols-[6.5rem_1fr] md:grid-cols-[11.5rem_1fr]">
+                <p className="pt-0.5 whitespace-nowrap text-sm font-semibold text-textSecondary">2022.08 — 2026.05</p>
+                <div className="border-l border-border pl-6">
+                  <h3 className="text-lg font-medium text-textSecondary">B.S. in Technology Systems Management</h3>
+                  <p className="mt-1 text-base md:text-lg leading-relaxed text-textPrimary">Stony Brook University</p>
+                  <p className="mt-2 text-base leading-relaxed text-textSecondary">Computer Science concentration · Magna Cum Laude</p>
+                </div>
+              </article>
+            </div>
+          </div>
+
+          <div id="leadership" className="scroll-mt-24">
+            <h2 className="text-2xl font-semibold tracking-[-0.04em] text-textPrimary">Leadership &amp; Experience</h2>
+            <div className="mt-8 space-y-8 md:space-y-10">
+              {[
+                ["2026", "Host & Speaker · LAMBDA at SUNY Korea Alumni Talk", "Organized an alumni event mentoring Korean international students on early-career development and the U.S. tech ecosystem."],
+                ["2025", "Researcher · SBU Blockchain Business Lab", "Participated in a university lab developing blockchain-based applications."],
+                ["2024", "Senior AR Developer & Mentor · SNU XR Association × XREAL", "Led persistent mixed-reality experience development and mentored peers in spatial computing."],
+                ["2024", "University Student Mentor · SW Companion Hackathon", "Guided and supported participants at an event hosted by the Korea Foundation for the Advancement of Science and Creativity."],
+                ["2023", "Conference Staff · KWDC23", "Supported operations and logistics for the AsyncSwift developer conference."],
+                ["2023", "Student Reporter & Video Editor · Ministry of Foreign Affairs", "Created interactive cultural content, including interviews with national Taekwondo athletes."],
+              ].slice(0, showAllLeadership ? 6 : 3).map(([date, title, detail]) => (
+                <article key={title} className="grid grid-cols-[6.5rem_1fr] md:grid-cols-[11.5rem_1fr]">
+                  <p className="pt-0.5 text-sm font-semibold text-textSecondary">{date}</p>
+                  <div className="border-l border-border pl-6">
+                    <h3 className="text-lg font-medium text-textSecondary">{title}</h3>
+                    <p className="mt-1 text-base md:text-lg leading-relaxed text-textPrimary">{detail}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <div className="mt-8 flex justify-center md:ml-[11.5rem]">
+              <button onClick={() => setShowAllLeadership((value) => !value)} className="rounded-full border border-border px-6 py-2.5 text-sm font-medium text-textSecondary transition-colors hover:border-textSecondary hover:text-textPrimary">{showAllLeadership ? "Show less" : "Show more"}</button>
+            </div>
+          </div>
+
+          <div id="awards" className="scroll-mt-24">
+            <h2 className="text-2xl font-semibold tracking-[-0.04em] text-textPrimary">Awards &amp; Honors</h2>
+            <div className="mt-8 space-y-8 md:space-y-10">
+              {[
+                ["2026.01", "Gold Prize & Meta Track Winner · MIT Reality Hack", "Co-won the overall Grand Prize and placed first in the Meta Track for SmartSight, a hands-free AI learning agent."],
+                ["2025 — 2026", "SUNY Korea Institutional Scholarship", "Merit-based scholarship recipient, including $2,000 in Spring 2025 and $1,000 in Spring 2026."],
+                ["2024.08", "Encouragement Award · SeSAC Google Hackathon", "Awarded by the Seoul Business Agency for developing an innovative software solution."],
+                ["2023.11", "Grand Prize · Incheon Global Campus Startup Idea Contest", "Awarded first place for pitching an entrepreneurial business model."],
+                ["2023.08", "Bronze Prize · OUTTA AI Bootcamp", "Received Excellent Team and Excellent Participant awards for technical performance."],
+                ["2026.05", "Magna Cum Laude · Stony Brook University", "Graduated with high honors, with a cumulative GPA of 3.77 / 4.0."],
+              ].slice(0, showAllAwards ? 6 : 3).map(([date, title, detail]) => (
+                <article key={title} className="grid grid-cols-[6.5rem_1fr] md:grid-cols-[11.5rem_1fr]">
+                  <p className="pt-0.5 text-sm font-semibold text-textSecondary">{date}</p>
+                  <div className="border-l border-border pl-6">
+                    <h3 className="text-lg font-medium text-textSecondary">{title}</h3>
+                    <p className="mt-1 text-base md:text-lg leading-relaxed text-textPrimary">{detail}</p>
+                  </div>
+                </article>
+              ))}
+            </div>
+            <div className="mt-8 flex justify-center md:ml-[11.5rem]">
+              <button onClick={() => setShowAllAwards((value) => !value)} className="rounded-full border border-border px-6 py-2.5 text-sm font-medium text-textSecondary transition-colors hover:border-textSecondary hover:text-textPrimary">{showAllAwards ? "Show less" : "Show more"}</button>
+            </div>
           </div>
         </div>
       </section>
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+      <div id="photo-dumps" className="scroll-mt-20 pt-16 md:pt-24">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <p className="text-sm font-medium uppercase tracking-[0.16em] text-textSecondary">Beyond the build</p>
+          <h2 className="mt-3 text-4xl md:text-6xl font-bold tracking-tight text-textPrimary">Photo Dumps.</h2>
+        </div>
+        <PhotoCylinder images={highlightImages} />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
 
         {/* Footer - 마지막으로 나타남 */}
         <motion.footer
@@ -473,4 +345,3 @@ export default function Home() {
     </main>
   );
 }
-

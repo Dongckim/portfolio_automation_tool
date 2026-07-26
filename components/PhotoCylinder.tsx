@@ -39,17 +39,21 @@ const circularDistance = (index: number, activeIndex: number, length: number) =>
   return distance;
 };
 
+const clampDrag = (distance: number) => Math.max(-96, Math.min(96, distance));
+
 export default function PhotoCylinder({ images }: PhotoCylinderProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const dragStart = useRef<number | null>(null);
   const activeAtDragStart = useRef(0);
   const hasDragged = useRef(false);
+  const advancedDuringGesture = useRef(false);
 
   const handlePointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
     dragStart.current = event.clientX;
     activeAtDragStart.current = activeIndex;
     hasDragged.current = false;
+    advancedDuringGesture.current = false;
     event.currentTarget.setPointerCapture(event.pointerId);
   };
 
@@ -57,15 +61,21 @@ export default function PhotoCylinder({ images }: PhotoCylinderProps) {
     if (dragStart.current === null) return;
     const distance = event.clientX - dragStart.current;
     if (Math.abs(distance) > 4) hasDragged.current = true;
-    setDragOffset(distance);
+    if (!advancedDuringGesture.current && Math.abs(distance) > 56) {
+      const direction = distance > 0 ? 1 : -1;
+      const nextIndex = (activeAtDragStart.current - direction + images.length) % images.length;
+      setActiveIndex(nextIndex);
+      advancedDuringGesture.current = true;
+      setDragOffset(0);
+      return;
+    }
+    // Keep one gesture visually focused on the active card instead of letting the
+    // entire carousel race across the page.
+    if (!advancedDuringGesture.current) setDragOffset(clampDrag(distance));
   };
 
-  const handlePointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+  const handlePointerUp = () => {
     if (dragStart.current === null) return;
-    const distance = event.clientX - dragStart.current;
-    const cardShift = Math.round(distance / 150);
-    const nextIndex = (activeAtDragStart.current - cardShift + images.length) % images.length;
-    setActiveIndex(nextIndex);
     setDragOffset(0);
     dragStart.current = null;
   };

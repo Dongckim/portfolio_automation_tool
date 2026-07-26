@@ -120,6 +120,16 @@ export default function Navbar() {
   }, [hoveredItem, activeMenuItem]);
 
   const shouldAnimate = prevHoveredItem === null;
+  const isDropdownOpen = Boolean((hoveredItem && activeMenuItem?.submenu) || hoveredItem === "Theme");
+
+  const toggleThemeMenu = () => {
+    setMobileMenuOpen(false);
+    setHoveredItem((current) => {
+      const next = current === "Theme" ? null : "Theme";
+      setPrevHoveredItem(next);
+      return next;
+    });
+  };
 
   return (
     <div
@@ -130,7 +140,7 @@ export default function Navbar() {
       }}
     >
       <nav
-        className="transition-all duration-300 bg-glass backdrop-blur-xl border-b border-glassBorder"
+        className={`transition-all duration-300 bg-glass backdrop-blur-xl border-b ${isDropdownOpen ? "border-transparent" : "border-glassBorder"}`}
         onMouseEnter={() => {
           // Keep dropdown open when mouse enters nav area
           if (hoveredItem) {
@@ -187,15 +197,18 @@ export default function Navbar() {
               <div
                 className="relative"
                 onMouseEnter={() => {
+                  setMobileMenuOpen(false);
                   const previousItem = hoveredItem;
                   setHoveredItem("Theme");
                   setPrevHoveredItem(previousItem);
                 }}
               >
                 <button
-                  onClick={toggleTheme}
+                  onClick={() => {
+                    if (window.innerWidth < 768) toggleThemeMenu();
+                  }}
                   className="text-textPrimary font-normal relative block py-1.5 hover:opacity-80 transition-opacity"
-                  aria-label={isDark ? "Switch to light mode" : "Switch to dark mode"}
+                  aria-label="Open theme menu"
                 >
                   {isDark ? (
                     <Sun className="w-[18px] h-[18px]" />
@@ -208,7 +221,11 @@ export default function Navbar() {
               {/* Mobile Menu Button */}
               <button
                 className="md:hidden text-textPrimary hover:text-accent transition-colors"
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                onClick={() => {
+                  setHoveredItem(null);
+                  setPrevHoveredItem(null);
+                  setMobileMenuOpen((current) => !current);
+                }}
                 aria-label="Menu"
               >
                 {mobileMenuOpen ? (
@@ -222,22 +239,9 @@ export default function Navbar() {
         </div>
       </nav>
 
-      {/* Bridge area between nav and dropdown to prevent closing */}
-      {((hoveredItem && activeMenuItem?.submenu) || hoveredItem === "Theme") && (
-        <div
-            className="fixed top-12 md:top-14 left-0 right-0 h-1 z-[45]"
-          onMouseEnter={() => {
-            if (hoveredItem) {
-              setPrevHoveredItem(hoveredItem);
-            }
-          }}
-          style={{ pointerEvents: "auto" }}
-        />
-      )}
-
       {/* Blur backdrop when dropdown is open */}
       <AnimatePresence>
-        {((hoveredItem && activeMenuItem?.submenu) || hoveredItem === "Theme") && (
+        {isDropdownOpen && (
           <motion.div
             initial={shouldAnimate ? { opacity: 0 } : false}
             animate={{ opacity: 1 }}
@@ -251,7 +255,7 @@ export default function Navbar() {
 
       {/* Full-Width Dropdown Menu */}
       <AnimatePresence>
-        {((hoveredItem && activeMenuItem?.submenu) || hoveredItem === "Theme") && (
+        {isDropdownOpen && (
           <motion.div
             initial={{ opacity: 0, y: -100 }}
             animate={{ opacity: 1, y: 0 }}

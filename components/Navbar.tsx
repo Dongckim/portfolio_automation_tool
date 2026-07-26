@@ -131,6 +131,12 @@ export default function Navbar() {
     });
   };
 
+  const closePanels = () => {
+    setHoveredItem(null);
+    setPrevHoveredItem(null);
+    setMobileMenuOpen(false);
+  };
+
   return (
     <div
       className="fixed top-0 left-0 right-0 z-50"
@@ -154,6 +160,7 @@ export default function Navbar() {
             <Link
               href="/"
               className="flex items-center transition-opacity hover:opacity-80"
+              onClick={closePanels}
             >
               <Image
                 src="/favicon.png"
@@ -184,6 +191,7 @@ export default function Navbar() {
                 >
                   <Link
                     href={item.href}
+                    onClick={closePanels}
                     className="text-[13px] text-textPrimary font-normal relative block py-1.5"
                   >
                     {item.label}
@@ -205,7 +213,11 @@ export default function Navbar() {
               >
                 <button
                   onClick={() => {
-                    if (window.innerWidth < 768) toggleThemeMenu();
+                    if (window.innerWidth < 768) {
+                      toggleThemeMenu();
+                      return;
+                    }
+                    closePanels();
                   }}
                   className="text-textPrimary font-normal relative block py-1.5 hover:opacity-80 transition-opacity"
                   aria-label="Open theme menu"
@@ -364,7 +376,7 @@ export default function Navbar() {
                   key={item.label}
                   href={item.href}
                   className="block text-textPrimary hover:text-accent transition-colors font-medium"
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={closePanels}
                 >
                   {item.label}
                 </Link>

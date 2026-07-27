@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Moon, Sun, Menu, X } from "lucide-react";
+import { ArrowUpRight, Moon, Sun, Menu, X } from "lucide-react";
 import Link from "next/link";
 import Image from "next/image";
 import { projectDetails } from "@/data/projects";
@@ -304,10 +304,11 @@ export default function Navbar() {
                                 href={item.href}
                                 target={item.href.startsWith('mailto') ? undefined : "_blank"}
                                 rel={item.href.startsWith('mailto') ? undefined : "noopener noreferrer"}
-                                onClick={closePanels}
-                                className="block py-1.5 text-lg md:text-xl font-semibold text-textPrimary leading-tight"
+                              onClick={closePanels}
+                                className="flex w-fit items-center gap-1 py-1.5 text-lg font-semibold leading-tight text-textPrimary md:text-xl"
                               >
-                                {item.label}
+                                <span>{item.label}</span>
+                                <ArrowUpRight aria-hidden className="h-[0.9em] w-[0.9em]" />
                               </a>
                             ) : (
                               <Link

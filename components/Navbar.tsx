@@ -75,17 +75,10 @@ export default function Navbar() {
       href: "#experience",
       submenu: [
         {
-          title: "Professional",
+          title: "Explore",
           items: [
-            { label: "Work History", href: "https://drive.google.com/file/d/1A_Axi5jiqOgkQX29WL8iK33kjys2O1V7/view?usp=sharing" },
-            { label: "Internships", href: "https://drive.google.com/file/d/1A_Axi5jiqOgkQX29WL8iK33kjys2O1V7/view?usp=sharing" },
-          ],
-        },
-        {
-          title: "Achievements",
-          items: [
-            { label: "Notable Work", href: "https://drive.google.com/file/d/1A_Axi5jiqOgkQX29WL8iK33kjys2O1V7/view?usp=sharing" },
-            { label: "Contributions", href: "https://drive.google.com/file/d/1A_Axi5jiqOgkQX29WL8iK33kjys2O1V7/view?usp=sharing" },
+            { label: "Resume", href: "/DongchanKim_Resume.pdf" },
+            { label: "Blog", href: "https://dongckim.github.io" },
           ],
         },
       ],
@@ -141,12 +134,11 @@ export default function Navbar() {
     <div
       className="fixed top-0 left-0 right-0 z-50"
       onMouseLeave={() => {
-        setHoveredItem(null);
-        setPrevHoveredItem(null);
+        closePanels();
       }}
     >
+      <div className="relative z-40 border-b border-glassBorder bg-glass backdrop-blur-xl">
       <nav
-        className={`transition-all duration-300 bg-glass backdrop-blur-xl border-b ${isDropdownOpen ? "border-transparent" : "border-glassBorder"}`}
         onMouseEnter={() => {
           // Keep dropdown open when mouse enters nav area
           if (hoveredItem) {
@@ -181,7 +173,7 @@ export default function Navbar() {
                   className="relative"
                   onMouseEnter={() => {
                     if (!item.submenu) {
-                      setHoveredItem(null);
+                      closePanels();
                       return;
                     }
                     const previousItem = hoveredItem;
@@ -251,6 +243,95 @@ export default function Navbar() {
         </div>
       </nav>
 
+      {/* The dropdown lives inside the same glass surface, so the navbar itself
+          expands instead of appearing to reveal a separate panel. */}
+      <AnimatePresence>
+        {isDropdownOpen && (
+          <motion.div
+            initial={{ height: 0 }}
+            animate={{ height: "auto" }}
+            exit={{ height: 0 }}
+            transition={{ duration: 0.38, ease: [0.16, 1, 0.3, 1] }}
+            className="overflow-hidden"
+          >
+            <motion.div
+              initial={{ opacity: 0, y: -16 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -12 }}
+              transition={{ duration: 0.26, ease: [0.16, 1, 0.3, 1] }}
+            >
+              <div className={`mx-auto flex min-h-[400px] max-w-7xl items-start px-4 py-16 sm:px-6 lg:px-8 ${hoveredItem === "Theme" ? "justify-end" : ""}`}>
+                {currentSubmenu && hoveredItem && (
+                  <div
+                    key={hoveredItem}
+                    className={`w-full ${hoveredItem === "Theme" ? "md:w-auto" : ""} grid grid-cols-1 ${hoveredItem === "Theme" ? "md:grid-cols-1" : "md:grid-cols-2 lg:grid-cols-3"} gap-12 lg:gap-16`}
+                  >
+                    {currentSubmenu.map((column, columnIndex) => (
+                      <motion.div
+                        key={column.title}
+                        initial={shouldAnimate ? { opacity: 0, y: 10 } : { opacity: 0 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={shouldAnimate ? { delay: columnIndex * 0.1, duration: 0.3 } : { duration: 0.2, delay: columnIndex * 0.05 }}
+                      >
+                      <h3 className="text-[10px] font-medium text-textSecondary mb-6 uppercase tracking-[0.08em]">
+                        {column.title}
+                      </h3>
+                      <ul className="space-y-3">
+                        {column.items.map((item, itemIndex) => (
+                          <motion.li
+                            key={item.label}
+                            initial={shouldAnimate ? { opacity: 0, x: -10 } : { opacity: 0 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={shouldAnimate ? {
+                              delay: columnIndex * 0.1 + itemIndex * 0.05,
+                              duration: 0.2,
+                            } : { duration: 0.2, delay: (columnIndex * 0.1 + itemIndex * 0.05) * 0.5 }}
+                          >
+                            {"action" in item && typeof item.action === "function" ? (
+                              <button
+                                onClick={() => {
+                                  if (typeof item.action === "function") {
+                                    item.action();
+                                  }
+                                  closePanels();
+                                }}
+                                className="block py-1.5 text-lg md:text-xl font-semibold text-textPrimary leading-tight text-left w-full"
+                              >
+                                {item.label}
+                              </button>
+                            ) : item.href && (item.href.startsWith('http') || item.href.startsWith('mailto')) ? (
+                              <a
+                                href={item.href}
+                                target={item.href.startsWith('mailto') ? undefined : "_blank"}
+                                rel={item.href.startsWith('mailto') ? undefined : "noopener noreferrer"}
+                                onClick={closePanels}
+                                className="block py-1.5 text-lg md:text-xl font-semibold text-textPrimary leading-tight"
+                              >
+                                {item.label}
+                              </a>
+                            ) : (
+                              <Link
+                                href={item.href || "#"}
+                                onClick={closePanels}
+                                className="block py-1.5 text-lg md:text-xl font-semibold text-textPrimary leading-tight"
+                              >
+                                {item.label}
+                              </Link>
+                            )}
+                          </motion.li>
+                        ))}
+                      </ul>
+                      </motion.div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      </div>
+
       {/* Blur backdrop when dropdown is open */}
       <AnimatePresence>
         {isDropdownOpen && (
@@ -262,101 +343,6 @@ export default function Navbar() {
             className="fixed top-12 md:top-14 left-0 right-0 bottom-0 z-30 backdrop-blur-sm"
             style={{ pointerEvents: "none" }}
           />
-        )}
-      </AnimatePresence>
-
-      {/* Full-Width Dropdown Menu */}
-      <AnimatePresence>
-        {isDropdownOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: -100 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -100 }}
-            transition={{ 
-              duration: 0.4, 
-              ease: [0.16, 1, 0.3, 1],
-              exit: {
-                duration: 0.4,
-                delay: 0.1,
-                ease: [0.16, 1, 0.3, 1]
-              }
-            }}
-            className="fixed top-12 md:top-14 left-0 right-0 z-40 bg-glass backdrop-blur-xl border-b border-glassBorder"
-            onMouseEnter={() => {
-              // Keep dropdown open when mouse enters dropdown
-              if (hoveredItem) {
-                setPrevHoveredItem(hoveredItem);
-              }
-            }}
-            style={{ pointerEvents: "auto" }}
-          >
-            <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 min-h-[400px] flex items-start ${hoveredItem === "Theme" ? "justify-end" : ""}`}>
-              {currentSubmenu && hoveredItem && (
-                <div
-                  key={hoveredItem}
-                  className={`w-full ${hoveredItem === "Theme" ? "md:w-auto" : ""} grid grid-cols-1 ${hoveredItem === "Theme" ? "md:grid-cols-1" : "md:grid-cols-2 lg:grid-cols-3"} gap-12 lg:gap-16`}
-                >
-                  {currentSubmenu.map((column, columnIndex) => (
-                    <motion.div
-                      key={column.title}
-                      initial={shouldAnimate ? { opacity: 0, y: 10 } : { opacity: 0 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={shouldAnimate ? { delay: columnIndex * 0.1, duration: 0.3 } : { duration: 0.2, delay: columnIndex * 0.05 }}
-                    >
-                    <h3 className="text-[10px] font-medium text-textSecondary mb-6 uppercase tracking-[0.08em]">
-                      {column.title}
-                    </h3>
-                    <ul className="space-y-3">
-                      {column.items.map((item, itemIndex) => (
-                        <motion.li
-                          key={item.label}
-                          initial={shouldAnimate ? { opacity: 0, x: -10 } : { opacity: 0 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={shouldAnimate ? {
-                            delay: columnIndex * 0.1 + itemIndex * 0.05,
-                            duration: 0.2,
-                          } : { duration: 0.2, delay: (columnIndex * 0.1 + itemIndex * 0.05) * 0.5 }}
-                        >
-                          {"action" in item && typeof item.action === "function" ? (
-                            <button
-                              onClick={() => {
-                                if (typeof item.action === "function") {
-                                  item.action();
-                                }
-                                setHoveredItem(null);
-                              }}
-                              className="block py-1.5 text-lg md:text-xl font-semibold text-textPrimary leading-tight text-left w-full"
-                            >
-                              {item.label}
-                            </button>
-                          ) : item.href && (item.href.startsWith('http') || item.href.startsWith('mailto')) ? (
-                            <a
-                              href={item.href}
-                              target={item.href.startsWith('mailto') ? undefined : "_blank"}
-                              rel={item.href.startsWith('mailto') ? undefined : "noopener noreferrer"}
-                              onClick={() => setHoveredItem(null)}
-                              className="block py-1.5 text-lg md:text-xl font-semibold text-textPrimary leading-tight"
-                            >
-                              {item.label}
-                            </a>
-                          ) : (
-                            <Link
-                              href={item.href || "#"}
-                              onClick={() => setHoveredItem(null)}
-                              className="block py-1.5 text-lg md:text-xl font-semibold text-textPrimary leading-tight"
-                            >
-                              {item.label}
-                            </Link>
-                          )}
-                        </motion.li>
-                      ))}
-                    </ul>
-                    </motion.div>
-                  ))}
-                </div>
-              )}
-            </div>
-          </motion.div>
         )}
       </AnimatePresence>
 

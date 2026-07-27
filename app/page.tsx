@@ -4,39 +4,14 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import PhotoCylinder from "@/components/PhotoCylinder";
 import ScrollExpansionHero from "@/components/ui/scroll-expansion-hero";
+import HeroTagline from "@/components/HeroTagline";
 import { highlightImages } from "@/constants/data";
-import { useEffect, useState } from "react";
-
-const heroPhrases = ["the next interface.", "human moments.", "the reality.", "what matters."];
+import { useState } from "react";
 
 export default function Home() {
   const [showAllNews, setShowAllNews] = useState(false);
   const [showAllLeadership, setShowAllLeadership] = useState(false);
   const [showAllAwards, setShowAllAwards] = useState(false);
-  const [heroPhraseIndex, setHeroPhraseIndex] = useState(0);
-  const [typedHeroPhrase, setTypedHeroPhrase] = useState("");
-  const [isDeletingHeroPhrase, setIsDeletingHeroPhrase] = useState(false);
-
-  useEffect(() => {
-    const phrase = heroPhrases[heroPhraseIndex];
-    const isComplete = typedHeroPhrase === phrase;
-    const delay = isComplete && !isDeletingHeroPhrase ? 1500 : isDeletingHeroPhrase ? 32 : 55;
-
-    const timer = window.setTimeout(() => {
-      if (!isDeletingHeroPhrase && typedHeroPhrase.length < phrase.length) {
-        setTypedHeroPhrase(phrase.slice(0, typedHeroPhrase.length + 1));
-      } else if (!isDeletingHeroPhrase) {
-        setIsDeletingHeroPhrase(true);
-      } else if (typedHeroPhrase.length > 0) {
-        setTypedHeroPhrase((current) => current.slice(0, -1));
-      } else {
-        setHeroPhraseIndex((current) => (current + 1) % heroPhrases.length);
-        setIsDeletingHeroPhrase(false);
-      }
-    }, delay);
-
-    return () => window.clearTimeout(timer);
-  }, [heroPhraseIndex, typedHeroPhrase, isDeletingHeroPhrase]);
 
   return (
     <main className="relative min-h-screen overflow-x-hidden bg-background">
@@ -100,9 +75,7 @@ export default function Home() {
                   }}
                   className="mb-6"
                 >
-                  <h2 className="text-2xl md:text-3xl font-semibold text-textPrimary mb-5 tracking-[-0.04em]">
-                    I build for <span className="text-accent">{typedHeroPhrase}</span><span className="ml-0.5 inline-block h-[0.85em] w-[2px] animate-pulse bg-accent align-[-0.08em]" />
-                  </h2>
+                  <HeroTagline />
                   <p className="text-base md:text-lg text-textSecondary leading-relaxed">
                     I&apos;m Dongchan Kim, an M.S. student at UIUC and a software engineer interested in making emerging interfaces feel reliable, useful, and human.
                   </p>

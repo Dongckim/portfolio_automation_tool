@@ -61,7 +61,7 @@ export default function ContactPage() {
           <p className="text-center text-xl md:text-2xl text-textSecondary">Feel free to check my availability.</p>
           <div className="mt-10 overflow-hidden rounded-2xl border border-border bg-surface p-2 shadow-[0_12px_28px_rgba(0,0,0,0.05)] md:p-4">
             <iframe
-              src="https://calendar.google.com/calendar/embed?src=dongchankim1999%40gmail.com&ctz=Asia%2FSeoul"
+              src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=America%2FChicago&showPrint=0&hl=en&showTabs=0&showNav=0&showCalendars=0&src=ZG9uZ2NoYW5raW0xOTk5QGdtYWlsLmNvbQ&color=%23039be5"
               title="Dongchan Kim's calendar"
               className="h-[600px] w-full rounded-xl"
               frameBorder="0"

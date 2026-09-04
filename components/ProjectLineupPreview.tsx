@@ -18,19 +18,13 @@ type Work = {
   featured?: boolean;
 };
 
-const featuredWork: Work = {
-  title: "SmartSight",
-  category: "Wearable AI · MIT Reality Hack 2026",
-  description:
-    "A hands-free learning companion that turns what you see into an answer, in real time.",
-  image: "/mit-reality-hack-2026-1.jpg",
-  href: "/projects/xr-optimization",
-  stack: ["Wearables", "Realtime", "Vision", "AWS"],
-  system: ["Glasses", "API", "S3", "Vision", "Realtime"],
-  featured: true,
-};
-
-const presentation: Record<string, Pick<Work, "category" | "image" | "system">> = {
+const presentation: Record<string, Pick<Work, "category" | "image" | "system" | "featured">> = {
+  "reality-hack": {
+    category: "Wearable AI · MIT Reality Hack 2026",
+    image: "/mit-reality-hack-2026-1.jpg",
+    system: ["Glasses", "API", "S3", "Vision", "Realtime"],
+    featured: true,
+  },
   tryl: {
     category: "AI fashion try-on",
     image: "/tryl-1.png",
@@ -74,7 +68,6 @@ const presentation: Record<string, Pick<Work, "category" | "image" | "system">> 
 };
 
 const work: Work[] = [
-  featuredWork,
   ...projects.map((project) => {
     const visual = presentation[project.id];
     return {
@@ -85,6 +78,7 @@ const work: Work[] = [
       href: `/projects/${project.id}`,
       stack: project.tags,
       system: visual.system,
+      featured: visual.featured,
     };
   }),
 ];

@@ -109,12 +109,26 @@ export function DiagramPlaceholder({ description, components, connections, group
   const viewBox = `${vbX} ${vbY} ${vbW} ${vbH}`;
 
   return (
-    <div className="relative bg-[#1C1C1E] border border-[#2D2D30] rounded-2xl p-8 h-[500px] flex flex-col">
-      <p className="text-xs text-gray-400 mb-3 uppercase tracking-wider flex-shrink-0">{description}</p>
+    <div className="relative bg-[#1C1C1E] border border-[#2D2D30] rounded-2xl p-6 md:p-8 h-[420px] md:h-[500px] flex flex-col">
+      <div className="flex items-center justify-between mb-3 flex-shrink-0">
+        <p className="text-xs text-gray-400 uppercase tracking-wider">{description}</p>
+        <span className="md:hidden flex items-center gap-1 text-[10px] text-gray-600">
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16l-4-4m0 0l4-4m-4 4h18" />
+          </svg>
+          swipe
+          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+          </svg>
+        </span>
+      </div>
 
+      {/* Mobile: horizontal scroll so the diagram stays readable */}
+      <div className="flex-1 min-h-0 overflow-x-auto md:overflow-visible">
+        <div className="h-full min-w-[580px] md:min-w-0">
       <svg
         viewBox={viewBox}
-        className="w-full flex-1 min-h-0"
+        className="w-full h-full"
         preserveAspectRatio="xMidYMid meet"
       >
         <defs>
@@ -269,6 +283,8 @@ export function DiagramPlaceholder({ description, components, connections, group
           );
         })}
       </svg>
+        </div>
+      </div>
     </div>
   );
 }

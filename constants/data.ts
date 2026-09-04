@@ -1,4 +1,4 @@
-import { Activity, Terminal, FileText, Cpu, Shield, Server, Camera, ShoppingBag } from "lucide-react";
+import { Activity, Terminal, FileText, Cpu, Shield, Server, Camera, ShoppingBag, Glasses } from "lucide-react";
 
 export interface Project {
   id: string;
@@ -10,6 +10,14 @@ export interface Project {
 }
 
 export const projects: Project[] = [
+  {
+    id: "reality-hack",
+    title: "SmartSight",
+    description: "A hands-free learning companion that turns what you see into an answer in real time, built for Ray-Ban Meta glasses at MIT Reality Hack 2026.",
+    tags: ["Wearables", "OpenAI", "AWS", "Realtime"],
+    icon: Glasses,
+    colSpan: 2,
+  },
   {
     id: "tryl",
     title: "Tryl: AI Fashion Try-On",
